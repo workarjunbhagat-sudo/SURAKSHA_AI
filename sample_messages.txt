@@ -1,0 +1,25 @@
+SURAKSHA AI DEMO DATA
+=====================
+
+DEMO 1 — Fake KYC
+URGENT: Your bank account will be BLOCKED within 2 hours due to incomplete KYC verification. Verify immediately at http://sbi-kyc-verification.example/demo. Enter Aadhaar, ATM PIN and OTP.
+
+Expected: HIGH RISK / Bank-KYC scam
+
+DEMO 2 — Authority impersonation
+Your number has been linked to an illegal transaction. Transfer ₹25,000 to avoid arrest. Share OTP with the investigating officer.
+
+Expected: HIGH RISK / Digital-arrest style scam
+
+DEMO 3 — Prize scam
+Congratulations! You won ₹25,00,000. Pay ₹4,999 processing fee and share OTP to claim the prize.
+
+Expected: HIGH RISK / Prize scam
+
+DEMO 4 — Lower-risk reminder
+Reminder: Your electricity bill is due on 30 September. Use your provider's official website or app to view and pay. Never share your OTP or password.
+
+Expected: LOWER RISK
+
+
+DEMO SCREENSHOT FILE: demo_scam_screenshot.png (fictional content only)

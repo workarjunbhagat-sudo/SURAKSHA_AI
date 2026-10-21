@@ -1,0 +1,13 @@
+SURAKSHA AI v7 — 3 minute expo demo
+
+1. Select हिंदी in the sidebar — show the translated interface.
+2. Load Demo → Fake KYC / bank message.
+3. Analyze → show risk score, ML probability and explainable indicators.
+4. Screenshot tab → upload the included demo screenshot if OCR is configured.
+5. Link tab → check the demo URL.
+6. Ask Suraksha → Voice → Chrome/Edge microphone → say:
+   "Koi mujhse OTP maang raha hai, main kya karun?"
+7. Let SURAKSHA answer aloud in Hindi.
+8. Switch to English and repeat one short question.
+9. Show Model Performance + Safety Center.
+10. Finish with: "Pause. Check. Stay Safe."

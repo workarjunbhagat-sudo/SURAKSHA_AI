@@ -1,0 +1,16 @@
+SURAKSHA AI v8 — Voice Demo
+
+Recommended demo:
+1. Select हिंदी.
+2. Ask: "कोई मुझसे OTP मांग रहा है, मैं क्या करूं?"
+3. Enter the recognized text in the confirmation box.
+4. Click GET FEMALE VOICE ANSWER.
+5. Play the generated audio — Hindi female neural voice, slowed for senior-friendly clarity.
+
+English:
+"Someone is asking me for an OTP. What should I do?"
+
+Hinglish:
+"Koi mujhse OTP maang raha hai, main kya karun?"
+
+Internet is required for neural voice generation. If it is unavailable, SURAKSHA falls back to the browser voice.

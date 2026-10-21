@@ -1,0 +1,25 @@
+SURAKSHA AI v9 — LIVE AI
+
+INSTALL:
+python -m pip install -r requirements.txt
+
+RUN:
+python -m streamlit run app.py
+
+OPENAI:
+1. Get an OpenAI API key from the OpenAI API platform.
+2. Put it in the sidebar field "OpenAI API key".
+3. Do NOT put the key into app.py or GitHub.
+4. Select English / हिंदी / Hinglish.
+5. Ask a question.
+6. For current information, tick "Use live web search when needed".
+
+VOICE:
+1. Choose Ask Suraksha.
+2. Select Voice.
+3. Click the microphone and speak.
+4. Click TRANSCRIBE → ASK AI → SPEAK ANSWER.
+5. SURAKSHA answers dynamically in the selected language and plays the response.
+
+LOCAL OLLAMA:
+If Ollama is installed and running, leave the API key blank. The app will try llama3.2:3b.
