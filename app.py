@@ -2,6 +2,7 @@ import json
 import csv
 import io
 import re
+import os
 from datetime import datetime
 import streamlit as st
 from i18n import tr, LANGS
@@ -34,11 +35,47 @@ st.markdown("""<style>
 .stAlert{border-radius:12px;background:#10263a}
 input,textarea,[data-baseweb="select"]>div{background:#0b1b2b!important;color:#e8f4ff!important}
 hr{border-color:#24465d}
+
+/* SURAKSHA AI premium interface layer */
+:root{color-scheme:dark}
+.stApp{background:radial-gradient(circle at 8% 0%,rgba(0,211,255,.13),transparent 28%),radial-gradient(circle at 92% 12%,rgba(99,102,241,.13),transparent 24%),linear-gradient(145deg,#050914 0%,#071526 48%,#08111e 100%);}
+.block-container{padding-top:1.35rem;padding-bottom:3rem;max-width:1500px}
+.hero{position:relative;overflow:hidden;padding:36px 38px;border-radius:26px;background:linear-gradient(115deg,rgba(8,18,36,.98),rgba(11,54,80,.96) 56%,rgba(5,113,127,.92));border:1px solid rgba(103,232,249,.34);box-shadow:0 18px 55px rgba(0,0,0,.28),0 0 34px rgba(34,211,238,.10);animation:heroIn .75s ease-out both}
+.hero:after{content:"";position:absolute;width:280px;height:280px;right:-70px;top:-130px;border:1px solid rgba(103,232,249,.22);border-radius:50%;box-shadow:0 0 0 28px rgba(103,232,249,.035),0 0 0 58px rgba(103,232,249,.025);pointer-events:none}
+.hero h1{font-size:clamp(2.2rem,4vw,3.35rem);font-weight:850;letter-spacing:-1.7px;line-height:1.08;text-shadow:0 0 25px rgba(103,232,249,.17)}
+.hero p{max-width:850px;line-height:1.55}
+.feature,.card{border:1px solid rgba(107,178,211,.20);border-radius:19px;background:linear-gradient(145deg,rgba(17,39,61,.92),rgba(7,20,35,.96));box-shadow:0 10px 28px rgba(0,0,0,.16);transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.feature:hover,.card:hover{transform:translateY(-3px);border-color:rgba(103,232,249,.48);box-shadow:0 14px 34px rgba(0,0,0,.25),0 0 22px rgba(34,211,238,.07)}
+.feature h3{font-size:1.12rem;letter-spacing:.1px}
+.risk{background:radial-gradient(circle at 50% 0%,rgba(34,211,238,.13),transparent 55%),linear-gradient(160deg,#102b42,#081522);border-color:rgba(103,232,249,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 12px 32px rgba(0,0,0,.18)}
+.risk-number{font-variant-numeric:tabular-nums;text-shadow:0 0 24px rgba(92,225,255,.2)}
+.stTabs [data-baseweb="tab-list"]{gap:7px;background:rgba(5,15,27,.88);border:1px solid rgba(107,178,211,.18);border-radius:15px;padding:7px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.stTabs [data-baseweb="tab"]{border-radius:10px;padding:11px 14px;transition:background .18s ease,color .18s ease}
+.stTabs [aria-selected="true"]{background:linear-gradient(110deg,rgba(8,126,170,.36),rgba(0,166,166,.20));box-shadow:inset 0 0 0 1px rgba(103,232,249,.18)}
+.stButton>button,.stDownloadButton>button{min-height:2.7rem;border-radius:12px;transition:all .2s ease}
+.stButton>button:focus,.stDownloadButton>button:focus{box-shadow:0 0 0 2px rgba(103,232,249,.35)}
+.stMetric{background:linear-gradient(150deg,rgba(17,43,65,.95),rgba(7,20,35,.98));border:1px solid rgba(107,178,211,.22);border-radius:17px;transition:transform .2s ease,border-color .2s ease}
+.stMetric:hover{transform:translateY(-2px);border-color:rgba(103,232,249,.42)}
+.stMetric [data-testid="stMetricValue"]{font-weight:800;letter-spacing:-.5px}
+[data-testid="stSidebar"]{background:linear-gradient(180deg,#06111f,#071a2a)!important;border-right:1px solid rgba(103,232,249,.15)}
+[data-testid="stExpander"]{border:1px solid rgba(107,178,211,.20);border-radius:14px;background:rgba(8,24,40,.65)}
+.stProgress>div>div{background:linear-gradient(90deg,#0891b2,#67e8f9,#34d399)}
+@keyframes heroIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
 </style>""", unsafe_allow_html=True)
 
 for key, default in {'demo_text':'','history':[],'last_result':None,'ocr_text':'','ocr_result':None,'last_url_result':None,'chat_history':[],'family_alert':'','quiz_score':0,'quiz_done':False,'language':'English','openai_key':'','batch_results':[]}.items():
     if key not in st.session_state: st.session_state[key]=default
 
+# API credentials are configured privately through Streamlit Secrets or environment variables.
+# The live API engine controls are intentionally hidden from the public interface; Ask Suraksha remains available.
+try:
+    _private_api_key = st.secrets.get('OPENAI_API_KEY', '')
+except Exception:
+    _private_api_key = ''
+st.session_state.openai_key = st.session_state.openai_key or _private_api_key or os.getenv('OPENAI_API_KEY', '')
+web_search = False
 lang=st.session_state.language
 # Keep stable internal language values; only the visible labels are translated.
 LANGUAGE_DISPLAY = {
@@ -66,12 +103,7 @@ with st.sidebar:
         st.rerun()
     lang=st.session_state.language
     st.divider()
-    st.markdown(f'### {tr(lang,"live_ai")}')
-    api_key=st.text_input(tr(lang,'api_key'), type='password', value=st.session_state.get('openai_key',''), placeholder='sk-...', help=tr(lang,'web_help'))
-    st.session_state.openai_key=api_key
-    web_search=st.checkbox(tr(lang,'web_search'), value=False, help=tr(lang,'web_help'))
-    if api_key: st.success(tr(lang,'ai_ready'))
-    else: st.info(tr(lang,'ai_no_key'))
+    st.caption('Digital safety • Explainable risk signals • Privacy-first guidance')
     st.divider()
     st.markdown(f'### {tr(lang,"demo")}')
     demo_keys=list(DEMO_MESSAGES.keys())
@@ -86,7 +118,7 @@ with st.sidebar:
         st.rerun()
 
 
-st.markdown(f'''<div class="hero"><h1>🛡️ SURAKSHA AI</h1><p>{tr(lang,'app_tag')}</p><p style="font-size:14px;opacity:.85">{tr(lang,'voice_enabled')}</p></div>''',unsafe_allow_html=True)
+st.markdown('''<div class="hero"><h1>🛡️ SURAKSHA AI</h1><p style="font-size:21px;font-weight:650;color:#d8f7ff">Learn to Detect. Educate to Protect.</p><p>Intelligent digital safety for messages, screenshots and suspicious links.</p><p style="font-size:14px;opacity:.88">Pause before you click. Understand the warning signs. Make a safer decision.</p></div>''',unsafe_allow_html=True)
 
 c1,c2,c3,c4=st.columns(4)
 for col,title,desc in [(c1,tr(lang,'message'),tr(lang,'card_msg')),(c2,tr(lang,'screenshot'),tr(lang,'card_screen')),(c3,tr(lang,'link'),tr(lang,'card_link')),(c4,tr(lang,'safety'),tr(lang,'card_safe'))]:
@@ -140,7 +172,9 @@ def show_result(result):
     for item in result.get('indicators',[]): st.markdown(f'- **{indicator_name(item["name"])}** — {indicator_expl(item["name"])}')
     st.markdown(f'### {tr(lang,"actions")}')
     for step in result.get('actions',[]): st.markdown(f'- {action_text(step)}')
-    st.info(tr(lang,'risk_notice')); risk_breakdown(result)
+    st.info(tr(lang,'risk_notice'))
+    st.markdown('<div class="card"><b>How to read this result</b><br>Risk score = strength of warning signals found in the submitted content, not a probability that fraud will occur. A lower score does not prove a message is safe.</div>', unsafe_allow_html=True)
+    risk_breakdown(result)
 
 def risk_breakdown(result):
     st.markdown(f'### {tr(lang,"breakdown")}')
@@ -152,7 +186,7 @@ def risk_breakdown(result):
 with tabs[0]:
     st.markdown(f'## {tr(lang,"dashboard")}'); total=len(st.session_state.history); high=sum(x['risk']>=70 for x in st.session_state.history); sus=sum(40<=x['risk']<70 for x in st.session_state.history); avg=sum(x['risk'] for x in st.session_state.history)/total if total else 0
     a,b,c,d=st.columns(4); a.metric(tr(lang,'analyses'),total); b.metric(tr(lang,'high'),high); c.metric(tr(lang,'suspicious'),sus); d.metric(tr(lang,'average'),f'{avg:.0f}/100')
-    st.markdown(f'### {tr(lang,"how")}'); st.markdown(f'**{tr(lang,"flow")}**')
+    st.markdown(f'### {tr(lang,"how")}'); st.markdown(f'**{tr(lang,"flow")}**'); st.caption('Dashboard figures reflect this browser session only; they are not global usage or confirmed fraud counts.')
     if total:
         st.markdown(f'### {tr(lang,"recent")}')
         for item in reversed(st.session_state.history[-5:]): st.markdown(f'🔴 **{item["source"]}** · {item["risk"]}/100 · {category_name(item["category"])} · {item["time"]}')
@@ -203,9 +237,16 @@ with tabs[3]:
 
 
 with tabs[4]:
-    st.markdown(f'## {tr(lang,"model_title")}'); st.caption(tr(lang,'model_caption')); c1,c2,c3,c4=st.columns(4); c1.metric(tr(lang,'accuracy'),f'{METRICS["accuracy"]*100:.1f}%'); c2.metric(tr(lang,'precision'),f'{METRICS["precision"]*100:.1f}%'); c3.metric(tr(lang,'recall'),f'{METRICS["recall"]*100:.1f}%'); c4.metric(tr(lang,'f1'),f'{METRICS["f1"]*100:.1f}%')
+    st.markdown(f'## {tr(lang,"model_title")}'); st.caption(tr(lang,'model_caption'))
+    st.info('Evaluation figures below are calculated from the bundled hold-out test split. They are not a guarantee of real-world scam detection and may change with new data.')
+    c1,c2,c3,c4=st.columns(4)
+    c1.metric('Test samples', METRICS['test_samples'])
+    c2.metric(tr(lang,'precision'), f'{METRICS["precision"]*100:.1f}%')
+    c3.metric(tr(lang,'recall'), f'{METRICS["recall"]*100:.1f}%')
+    c4.metric(tr(lang,'f1'), f'{METRICS["f1"]*100:.1f}%')
+    st.caption('Production-wide accuracy is not displayed because the bundled test split is not sufficient to represent real-world scam traffic. Use precision, recall, F1 and the confusion matrix as preliminary evaluation signals; validate on a larger independent dataset before publishing an accuracy claim.')
     st.markdown(f'<div class="card"><b>{tr(lang,"training")}:</b> {METRICS["train_samples"]} &nbsp; | &nbsp; <b>{tr(lang,"testing")}:</b> {METRICS["test_samples"]}<br><br><b>{tr(lang,"pipeline")}:</b> TF-IDF → Logistic Regression → Probability + Explainable Rule Fusion</div>',unsafe_allow_html=True)
-    cm=METRICS['confusion_matrix']; st.markdown(f'### {tr(lang,"confusion")}'); st.table({'': [tr(lang,'actual_lower'),tr(lang,'actual_susp')],tr(lang,'pred_lower'):[cm[0][0],cm[1][0]],tr(lang,'pred_susp'):[cm[0][1],cm[1][1]]}); st.warning(tr(lang,'model_note'))
+    cm=METRICS['confusion_matrix']; st.markdown(f'### {tr(lang,"confusion")}'); st.table({'': [tr(lang,'actual_lower'),tr(lang,'actual_susp')],tr(lang,'pred_lower'):[cm[0][0],cm[1][0]],tr(lang,'pred_susp'):[cm[0][1],cm[1][1]]}); st.warning(tr(lang,'model_note') + ' Treat these metrics as an initial benchmark; validate on a larger, diverse and independently labeled dataset before making performance claims.')
 
 with tabs[5]:
     st.markdown(f'## {tr(lang,"ask_title")}'); st.caption(tr(lang,'ask_caption')); mode=st.radio(tr(lang,'input_mode'),[tr(lang,'type'),tr(lang,'voice')],horizontal=True)
@@ -283,10 +324,24 @@ with tabs[7]:
     if 'quiz_answers' not in st.session_state: st.session_state.quiz_answers={}
     for i,(q,opts,ans,why) in enumerate(scenarios):
         st.markdown(f'### {i+1}. {q}'); choice=st.radio(tr(lang,'safer'),opts,key=f'quiz_{i}'); st.session_state.quiz_answers[i]=opts.index(choice)
-    if st.button(tr(lang,'check_score'),type='primary',use_container_width=True): st.session_state.quiz_score=sum(st.session_state.quiz_answers.get(i)==s[2] for i,s in enumerate(scenarios)); st.session_state.quiz_done=True
+    answered = sum(1 for i in range(len(scenarios)) if i in st.session_state.quiz_answers)
+    st.progress(answered / max(1, len(scenarios)), text=f'Learning progress · {answered}/{len(scenarios)} scenarios reviewed')
+    if st.button(tr(lang,'check_score'),type='primary',use_container_width=True, key='trainer_check_score'):
+        st.session_state.quiz_score=sum(st.session_state.quiz_answers.get(i)==s[2] for i,s in enumerate(scenarios)); st.session_state.quiz_done=True
     if st.session_state.quiz_done:
-        st.metric(tr(lang,'score'),f'{st.session_state.quiz_score}/5'); s=st.session_state.quiz_score
-        st.success(tr(lang,'excellent') if s==5 else tr(lang,'good') if s>=3 else tr(lang,'practice')); st.markdown(f'### {tr(lang,"learning")}'); st.markdown(f'**{tr(lang,"learning_line")}**')
+        st.metric(tr(lang,'score'),f'{st.session_state.quiz_score}/{len(scenarios)}')
+        st.progress(st.session_state.quiz_score / max(1,len(scenarios)), text='Scam awareness score')
+        s=st.session_state.quiz_score
+        st.success(tr(lang,'excellent') if s==len(scenarios) else tr(lang,'good') if s>=3 else tr(lang,'practice'))
+        st.markdown(f'### {tr(lang,"learning")}'); st.markdown(f'**{tr(lang,"learning_line")}**')
+        with st.expander('Review the answer key and why it matters'):
+            for i,(question,options,answer,explanation) in enumerate(scenarios):
+                chosen=st.session_state.quiz_answers.get(i)
+                st.markdown(f"**{i+1}. {'Correct' if chosen == answer else 'Review this one'}** — {question}")
+                st.caption(f"Safer choice: {options[answer]}")
+                st.write(explanation)
+        if st.button('Practice again', key='trainer_reset'):
+            st.session_state.quiz_answers={}; st.session_state.quiz_done=False; st.session_state.quiz_score=0; st.rerun()
 
 with tabs[8]:
     st.markdown(f'## {tr(lang,"library")}')
