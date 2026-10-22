@@ -12,11 +12,31 @@ from ml_engine import METRICS
 from ocr_engine import extract_text_from_image, ocr_available
 
 st.set_page_config(page_title='SURAKSHA AI', page_icon='🛡️', layout='wide')
-st.markdown('''<style>
-.stApp{background:linear-gradient(180deg,#f7f9fc 0%,#eef3f8 100%)}.block-container{padding-top:1.4rem;max-width:1440px}.hero{padding:30px 34px;border-radius:22px;background:linear-gradient(125deg,#0b1f33 0%,#173c57 58%,#176b72 100%);color:white;margin-bottom:22px;box-shadow:0 12px 32px rgba(16,42,67,.17);border:1px solid rgba(255,255,255,.13)}.hero h1{font-size:44px;margin:0;letter-spacing:-1px}.hero p{font-size:18px;color:#d9eaf2;margin-top:8px}.risk{padding:20px;border-radius:18px;text-align:center;border:1px solid #d9e2ec;background:linear-gradient(180deg,#fff,#f9fbfd);box-shadow:0 6px 18px rgba(16,42,67,.06)}.risk-number{font-size:48px;font-weight:800;letter-spacing:-1px}.card{padding:18px;border-radius:16px;background:white;border:1px solid #e1e8ed;margin-bottom:12px;box-shadow:0 4px 14px rgba(16,42,67,.035)}.feature{padding:17px;border-radius:16px;background:linear-gradient(160deg,#fff,#f7fafc);border:1px solid #dfe7ef;min-height:125px;box-shadow:0 4px 14px rgba(16,42,67,.045)}.feature h3{margin-top:0;color:#183b56}.stButton>button,.stDownloadButton>button{border-radius:11px;font-weight:650;transition:transform .12s ease,box-shadow .12s ease}.stButton>button:hover,.stDownloadButton>button:hover{transform:translateY(-1px);box-shadow:0 5px 14px rgba(18,52,77,.12)}.stTabs [data-baseweb="tab-list"]{gap:5px}.stTabs [data-baseweb="tab"]{border-radius:10px 10px 0 0;padding:10px 14px}.stTabs [aria-selected="true"]{background:#e2edf4;font-weight:700}.stMetric{background:#fff;border:1px solid #e1e8ed;padding:12px 14px;border-radius:14px;box-shadow:0 3px 12px rgba(16,42,67,.04)}[data-testid="stSidebar"]{border-right:1px solid #e1e8ed}.stAlert{border-radius:12px}
-</style>''', unsafe_allow_html=True)
+st.markdown("""<style>
+.stApp{background:radial-gradient(ellipse at top left,#102b45 0%,#07111f 42%,#050a12 100%);color:#e8f4ff}
+.block-container{padding-top:1.2rem;max-width:1480px}
+.hero{padding:30px 34px;border-radius:22px;background:linear-gradient(125deg,#07111f 0%,#103b5a 55%,#087e8b 100%);color:white;margin-bottom:22px;box-shadow:0 0 35px rgba(0,203,255,.13);border:1px solid rgba(74,222,255,.28)}
+.hero h1{font-size:44px;margin:0;letter-spacing:-1px;color:#f5fbff}.hero p{font-size:18px;color:#bceeff;margin-top:8px}
+.risk{padding:20px;border-radius:18px;text-align:center;border:1px solid #244b66;background:linear-gradient(180deg,#10263a,#0a1726);box-shadow:0 0 22px rgba(0,204,255,.08);color:#e8f4ff}
+.risk-number{font-size:48px;font-weight:800;letter-spacing:-1px;color:#5ce1ff}
+.card,.feature{padding:18px;border-radius:16px;background:linear-gradient(145deg,#10263a,#0a1726);border:1px solid #24465d;margin-bottom:12px;box-shadow:0 6px 22px rgba(0,0,0,.18);color:#e8f4ff}
+.feature{min-height:125px}.feature h3{margin-top:0;color:#71e4ff}
+.stMarkdown,.stCaption,.stText,.stMetric label{color:#d9eafa}
+.stButton>button,.stDownloadButton>button{border-radius:11px;font-weight:700;border:1px solid #2b7795;transition:all .15s ease}
+.stButton>button[kind="primary"]{background:linear-gradient(100deg,#087eaa,#00a6a6);color:white}
+.stButton>button:hover,.stDownloadButton>button:hover{transform:translateY(-1px);box-shadow:0 0 18px rgba(0,210,255,.2);border-color:#55ddff}
+.stTabs [data-baseweb="tab-list"]{gap:5px;background:#091827;border:1px solid #1c3b52;border-radius:12px;padding:5px}
+.stTabs [data-baseweb="tab"]{border-radius:9px;padding:10px 13px;color:#b8d7e9}
+.stTabs [aria-selected="true"]{background:#123b53;color:#6ee7ff;font-weight:750}
+.stMetric{background:linear-gradient(145deg,#10263a,#0a1726);border:1px solid #24465d;padding:12px 14px;border-radius:14px;box-shadow:0 3px 16px rgba(0,0,0,.16)}
+[data-testid="stSidebar"]{background:#071421;border-right:1px solid #1c3b52}
+[data-testid="stSidebar"] *{color:#d9eafa}
+.stAlert{border-radius:12px;background:#10263a}
+input,textarea,[data-baseweb="select"]>div{background:#0b1b2b!important;color:#e8f4ff!important}
+hr{border-color:#24465d}
+</style>""", unsafe_allow_html=True)
 
-for key, default in {'senior_mode':False,'demo_text':'','history':[],'last_result':None,'ocr_text':'','ocr_result':None,'last_url_result':None,'chat_history':[],'family_alert':'','quiz_score':0,'quiz_done':False,'language':'English','openai_key':'','batch_results':[],'compare_results':None}.items():
+for key, default in {'demo_text':'','history':[],'last_result':None,'ocr_text':'','ocr_result':None,'last_url_result':None,'chat_history':[],'family_alert':'','quiz_score':0,'quiz_done':False,'language':'English','openai_key':'','batch_results':[]}.items():
     if key not in st.session_state: st.session_state[key]=default
 
 lang=st.session_state.language
@@ -33,7 +53,6 @@ if lang not in LANGS:
 with st.sidebar:
     st.markdown('## 🛡️ SURAKSHA AI')
     st.caption(tr(lang,'app_tag'))
-    st.session_state.senior_mode=st.toggle(tr(lang,'senior'), value=st.session_state.senior_mode)
     current_index = LANGS.index(lang)
     chosen_internal=st.selectbox(
         tr(lang,'language'),
@@ -63,11 +82,9 @@ with st.sidebar:
     if st.button(tr(lang,'load_demo'),use_container_width=True):
         st.session_state.demo_text=DEMO_MESSAGES[demo_key]; st.session_state.last_result=None; st.success(tr(lang,'demo_loaded'))
     if st.button(tr(lang,'clear'),use_container_width=True):
-        for k,v in [('history',[]),('last_result',None),('ocr_text',''),('ocr_result',None),('last_url_result',None),('chat_history',[]),('batch_results',[]),('compare_results',None)]: st.session_state[k]=v
+        for k,v in [('history',[]),('last_result',None),('ocr_text',''),('ocr_result',None),('last_url_result',None),('chat_history',[]),('batch_results',[]),]: st.session_state[k]=v
         st.rerun()
 
-font_size='22px' if st.session_state.senior_mode else '16px'
-st.markdown(f'<style>body{{font-size:{font_size};}}</style>',unsafe_allow_html=True)
 
 st.markdown(f'''<div class="hero"><h1>🛡️ SURAKSHA AI</h1><p>{tr(lang,'app_tag')}</p><p style="font-size:14px;opacity:.85">{tr(lang,'voice_enabled')}</p></div>''',unsafe_allow_html=True)
 
@@ -75,7 +92,7 @@ c1,c2,c3,c4=st.columns(4)
 for col,title,desc in [(c1,tr(lang,'message'),tr(lang,'card_msg')),(c2,tr(lang,'screenshot'),tr(lang,'card_screen')),(c3,tr(lang,'link'),tr(lang,'card_link')),(c4,tr(lang,'safety'),tr(lang,'card_safe'))]:
     with col: st.markdown(f'<div class="feature"><h3>{title}</h3><div>{desc}</div></div>',unsafe_allow_html=True)
 
-EXTRA_TAB_LABELS = {'English':['📚 Batch Scan','⚖️ Compare','✅ Safety Readiness'],'हिंदी':['📚 बैच स्कैन','⚖️ तुलना','✅ सुरक्षा तैयारी'],'Hinglish':['📚 Batch Scan','⚖️ Compare','✅ Safety Readiness']}
+EXTRA_TAB_LABELS = {'English':['📚 Batch Scan','✅ Safety Readiness'],'हिंदी':['📚 बैच स्कैन','✅ सुरक्षा तैयारी'],'Hinglish':['📚 Batch Scan','✅ Safety Readiness']}
 tabs=st.tabs([tr(lang,'dashboard'),tr(lang,'message'),tr(lang,'screenshot'),tr(lang,'link'),tr(lang,'model'),tr(lang,'ask'),tr(lang,'safety'),tr(lang,'trainer'),tr(lang,'library'),tr(lang,'history')] + EXTRA_TAB_LABELS[lang])
 
 CATEGORY={
@@ -140,6 +157,10 @@ with tabs[0]:
         st.markdown(f'### {tr(lang,"recent")}')
         for item in reversed(st.session_state.history[-5:]): st.markdown(f'🔴 **{item["source"]}** · {item["risk"]}/100 · {category_name(item["category"])} · {item["time"]}')
         st.markdown(f'### {tr(lang,"category_breakdown")}'); st.bar_chart({category_name(k):sum(1 for x in st.session_state.history if x['category']==k) for k in set(x['category'] for x in st.session_state.history)})
+        st.markdown('### Risk distribution')
+        risk_counts = {'High (70–100)':sum(1 for x in st.session_state.history if x['risk']>=70),'Review (40–69)':sum(1 for x in st.session_state.history if 40<=x['risk']<70),'Lower (0–39)':sum(1 for x in st.session_state.history if x['risk']<40)}
+        st.bar_chart(risk_counts)
+        st.caption('Session-only insights. Risk bands are screening indicators, not confirmed fraud cases.')
     else: st.info(tr(lang,'empty_dashboard'))
     st.markdown(f'### {tr(lang,"privacy")}'); st.markdown(tr(lang,'privacy_text'))
 
@@ -375,44 +396,6 @@ with tabs[10]:
         st.caption('A risk score is a screening signal—not a calibrated probability or proof that a message is fraudulent or safe.')
 
 with tabs[11]:
-    cmp = {
-        'English': {'title':'Compare two messages','caption':'See how wording changes warning signals. This side-by-side comparison is not a controlled experiment.','a':'Message A','b':'Message B','run':'Compare messages','gap':'Risk-score difference','common':'Signals in both','only_a':'Only in A','only_b':'Only in B','empty':'Enter both messages before comparing.','note':'Changing wording can change model output; neither score guarantees real-world safety.'},
-        'हिंदी': {'title':'दो संदेशों की तुलना','caption':'देखें कि शब्द बदलने से चेतावनी संकेत कैसे बदलते हैं। यह नियंत्रित प्रयोग नहीं है।','a':'संदेश A','b':'संदेश B','run':'संदेशों की तुलना करें','gap':'जोखिम स्कोर का अंतर','common':'दोनों में मिले संकेत','only_a':'केवल A में','only_b':'केवल B में','empty':'तुलना से पहले दोनों संदेश लिखें।','note':'शब्द बदलने से परिणाम बदल सकता है; कोई भी स्कोर सुरक्षा की गारंटी नहीं है।'},
-        'Hinglish': {'title':'Compare two messages','caption':'Wording change karne se warning signals kaise change hote hain, side-by-side dekho. Ye controlled experiment nahi hai.','a':'Message A','b':'Message B','run':'Messages compare karo','gap':'Risk-score difference','common':'Dono mein common signals','only_a':'Sirf A mein','only_b':'Sirf B mein','empty':'Compare karne se pehle dono messages enter karo.','note':'Wording se model output change ho sakta hai; koi score real-world safety guarantee nahi karta.'}
-    }[lang]
-    st.markdown(f'## {cmp["title"]}'); st.caption(cmp['caption'])
-    st.info('Avoid pasting real OTPs, passwords, account numbers, or other sensitive information into either box.')
-    left, right = st.columns(2)
-    with left: text_a = st.text_area(cmp['a'], height=190, placeholder='Paste the first message…', key='compare_message_a')
-    with right: text_b = st.text_area(cmp['b'], height=190, placeholder='Paste the second message…', key='compare_message_b')
-    if st.button(cmp['run'], type='primary', use_container_width=True, key='run_compare_scan'):
-        if not text_a.strip() or not text_b.strip(): st.warning(cmp['empty'])
-        else:
-            try:
-                res_a = analyze_message(text_a, lang); res_b = analyze_message(text_b, lang)
-                st.session_state.compare_results = {'a':res_a,'b':res_b}
-                add_history('Compare A', text_a, res_a); add_history('Compare B', text_b, res_b)
-            except Exception as exc: st.error(f'Comparison could not be completed: {exc}')
-    if st.session_state.compare_results:
-        ra, rb = st.session_state.compare_results['a'], st.session_state.compare_results['b']
-        col_a, col_b = st.columns(2)
-        for col, label, result in [(col_a, cmp['a'], ra), (col_b, cmp['b'], rb)]:
-            with col:
-                score = int(result.get('risk',0)); st.markdown(f'### {label}'); st.metric('Risk score', f'{score}/100'); st.progress(min(max(score,0),100)/100)
-                st.write(f"**{tr(lang,'category')}:** {category_name(result.get('category','Suspicious message'))}")
-                st.write(f"**Signals found:** {len(result.get('indicators',[]))}")
-        difference = int(ra.get('risk',0)) - int(rb.get('risk',0))
-        delta = f'A is higher by {difference}' if difference > 0 else (f'B is higher by {abs(difference)}' if difference < 0 else 'Scores are equal')
-        st.metric(cmp['gap'], f'{abs(difference)} points', delta=delta, delta_color='inverse')
-        def get_signals(res): return {item.get('name') for item in res.get('indicators',[])}
-        sa, sb = get_signals(ra), get_signals(rb)
-        c1, c2, c3 = st.columns(3)
-        with c1: st.markdown(f"**{cmp['common']}**"); st.write(', '.join(indicator_name(x) for x in sorted(sa & sb)) or '—')
-        with c2: st.markdown(f"**{cmp['only_a']}**"); st.write(', '.join(indicator_name(x) for x in sorted(sa - sb)) or '—')
-        with c3: st.markdown(f"**{cmp['only_b']}**"); st.write(', '.join(indicator_name(x) for x in sorted(sb - sa)) or '—')
-        st.info(cmp['note'])
-
-with tabs[12]:
     ready = {
         'English': {'title':'Personal digital-safety readiness','caption':'A self-reported checklist for building safer habits; not a security audit.','items':['I use unique passwords for important accounts.','I have enabled multi-factor authentication where available.','I know how to contact my bank through an independently verified channel.','I never share OTPs, PINs, passwords, or CVV with callers/messages.','My phone and apps receive security updates.','I know how to report suspected cyber fraud in my region.'],'heading':'Readiness checklist','download':'Download my checklist','tips_heading':'Remember the STOP check','tips':['Stop before acting on urgency or threats.','Take no action through an unsolicited link or caller.','Open the official app/site yourself and verify independently.'],'disclaimer':'Completion reflects your answers only; it does not measure actual device or account security.'},
         'हिंदी': {'title':'व्यक्तिगत डिजिटल सुरक्षा तैयारी','caption':'सुरक्षित आदतों के लिए स्वयं भरी जाने वाली चेकलिस्ट; यह सुरक्षा ऑडिट नहीं है।','items':['मैं महत्वपूर्ण खातों के लिए अलग-अलग पासवर्ड इस्तेमाल करता/करती हूं।','जहां उपलब्ध है, मैंने मल्टी-फैक्टर प्रमाणीकरण चालू किया है।','मुझे बैंक से आधिकारिक और स्वतंत्र रूप से सत्यापित माध्यम से संपर्क करना आता है।','मैं कॉल/संदेश पर ओटीपी, पिन, पासवर्ड या सीवीवी साझा नहीं करता/करती।','मेरे फोन और ऐप सुरक्षा अपडेट लेते हैं।','मुझे अपने क्षेत्र में साइबर धोखाधड़ी की रिपोर्ट करने का तरीका पता है।'],'heading':'सुरक्षा चेकलिस्ट','download':'मेरी चेकलिस्ट डाउनलोड करें','tips_heading':'STOP जांच याद रखें','tips':['जल्दी या धमकी में आकर तुरंत कार्रवाई न करें।','अनजान लिंक या कॉल के निर्देश पर कार्रवाई न करें।','आधिकारिक ऐप/वेबसाइट खुद खोलकर स्वतंत्र पुष्टि करें।'],'disclaimer':'चेकलिस्ट केवल आपके उत्तर दिखाती है; यह डिवाइस या खाते की वास्तविक सुरक्षा नहीं मापती।'},
